@@ -13,6 +13,7 @@ ProductRouter.post('/createProductRouterItem', ProductController.createProductIt
 ProductRouter.post('/addToCart', ProductController.addToCart)
 ProductRouter.post('/removeFromCart', ProductController.removeFromCart)
 ProductRouter.post('/clearCart', ProductController.clearCart)
+ProductRouter.post('/pay', ProductController.payment)
 // get
 ProductRouter.get('/getAllProducts', ProductController.getProductItem)
 ProductRouter.get('/getProductById/:id', ProductController.getProductById)

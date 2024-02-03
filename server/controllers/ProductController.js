@@ -1,6 +1,7 @@
 import AddToCart from "../moddle/AddToCart.js"
 import Product from "../moddle/Product.js"
 import mongoose from "mongoose";
+import Stripe from 'stripe';
 class ProductController {
 //    📝  create
  static createProductItem =async(req,res)=>{
@@ -251,47 +252,32 @@ static getAddToCartProductsByUserId = async(req,res) =>{
 }
 
 
-//  static removeFromCart = async(req,res)=>{
-//   try {
-//     const { userId, products: [{ productId, quantityToRemove, price }]  } = req.body;
+static payment = async (re, res)=>{
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  const stripe = new Stripe(stripeSecretKey);
+  try {
+    console.log(req.body.token);
+    const { token, amount } = req.body;
+    const idempotencyKey = uuidv4();
 
-//     if (!userId || !productId || !quantityToRemove) {
-//       return res.status(400).json({ "msg": "userId, productId, and quantityToRemove are required!" });
-//     }
+    const customer = await stripe.customers.create({
+      email: token.email,
+      source: token.id // Assuming 'token' contains the payment method ID received from the client-side
+    });
 
-//     let cart = await AddToCart.findOne({ userId });
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount * 100, // Convert amount to cents
+      currency: 'usd',
+      customer: customer.id,
+      receipt_email: token.email
+    }, { idempotencyKey });
 
-//     if (cart) {
-//       const existingProductIndex = cart.products.findIndex(p => p.productId === productId);
-
-//       if (existingProductIndex > -1) {
-//         // Update existing product quantity and recalculate total price
-//         const existingProduct = cart.products[existingProductIndex];
-//         existingProduct.quantity = Math.max(existingProduct.quantity - quantityToRemove, 0);
-
-//         if (existingProduct.quantity === 0) {
-//           // If quantity becomes zero, remove the product from the cart
-//           cart.products.splice(existingProductIndex, 1);
-//         }
-
-//         // Recalculate total price for all products in the cart
-//         cart.totalPrice = cart.products.reduce((total, product) => {
-//           return total + product.quantity * product.price;
-//         }, 0);
-
-//         await cart.save();
-//       } else {
-//         return res.status(404).json({ "msg": "Product not found in the cart" });
-//       }
-//     } else {
-//       return res.status(404).json({ "msg": "Cart not found for the user" });
-//     }
-
-//     res.json(cart);
-//   } catch (err) {
-//     res.status(500).json({ msg: 'Error removing item from cart', err });
-//   }
-//  }
+  return  res.status(200).json(paymentIntent);
+  } catch (error) {
+    console.error(error);
+   return  res.status(500).json({ error: 'An error occurred while processing the payment.' });
+  }
+}
 
 }
 export default ProductController

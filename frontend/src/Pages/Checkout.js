@@ -5,6 +5,8 @@ import CartFunctions from '../CommonComponents/CartFunctions';
 import { useSelector } from 'react-redux';
 import Loader from '../CommonComponents/Loader';
 import { toast } from 'react-toastify';
+import Stripe from 'react-stripe-checkout';
+// import StripeCheckout from 'react-stripe-checkout';
 const Checkout = () => {
   const [dataOfTheCart, setDataOfTheCart] = useState([]);
   const [loader, setLoader] = useState(false);
@@ -66,6 +68,9 @@ const Checkout = () => {
     },[user])
     const handlePayment  = () =>{
       toast.error("Under development")
+    }
+    const handlePaymentToken  = ()=>{
+
     }
   return (
     <div className='container mx-auto'>
@@ -209,6 +214,7 @@ col ={10}
         
 <button className="flex ml-auto text-white  bg-red-500 border-0 py-1 text-sm  px-4 mx-2 focus:outline-none hover:bg-indigo-600 rounded" onClick={handlePayment} >Pay ${dataOfTheCart?.totalPrice}</button>
 
+<Stripe stripeKey={process.env.REACT_APP_STRIPE_PUBLIC_KEY} token={handlePaymentToken} />
 
 </div>}
 
