@@ -5,6 +5,7 @@ const ProductRouter = express.Router()
 ProductRouter.use('/addToCart',Userauth)
 ProductRouter.use('/removeFromCart',Userauth)
 ProductRouter.use('/clearCart',Userauth)
+ProductRouter.use('/pay',Userauth)
 ProductRouter.use('/getAddToCartProductsByUserId/:userId', Userauth)
 
 ProductRouter.use('/removeFromCart',Userauth)

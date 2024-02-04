@@ -2,6 +2,7 @@ import AddToCart from "../moddle/AddToCart.js"
 import Product from "../moddle/Product.js"
 import mongoose from "mongoose";
 import Stripe from 'stripe';
+import { v4 as uuidv4 } from 'uuid';
 class ProductController {
 //    📝  create
  static createProductItem =async(req,res)=>{
@@ -252,7 +253,7 @@ static getAddToCartProductsByUserId = async(req,res) =>{
 }
 
 
-static payment = async (re, res)=>{
+static payment = async (req, res)=>{
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
   const stripe = new Stripe(stripeSecretKey);
   try {
@@ -275,7 +276,7 @@ static payment = async (re, res)=>{
   return  res.status(200).json(paymentIntent);
   } catch (error) {
     console.error(error);
-   return  res.status(500).json({ error: 'An error occurred while processing the payment.' });
+   return  res.status(500).json({ message: 'An error occurred while processing the payment.',error:error.message });
   }
 }
 

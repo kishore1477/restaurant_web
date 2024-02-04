@@ -6,10 +6,13 @@ import { useSelector } from 'react-redux';
 import Loader from '../CommonComponents/Loader';
 import { toast } from 'react-toastify';
 import Stripe from 'react-stripe-checkout';
+import { postApiData } from '../CommonComponents/ApiFunctions';
+import { useNavigate } from 'react-router-dom';
 // import StripeCheckout from 'react-stripe-checkout';
 const Checkout = () => {
   const [dataOfTheCart, setDataOfTheCart] = useState([]);
   const [loader, setLoader] = useState(false);
+  const navigate = useNavigate()
   const { user } = useSelector((state)=>state?.user)
   const {handleAddToCart,getAddToCartProducts, handleRemoveFromCart, handleClearCart} = CartFunctions()
   const handleAddToCartClick = async(product) =>{
@@ -69,8 +72,25 @@ const Checkout = () => {
     const handlePayment  = () =>{
       toast.error("Under development")
     }
-    const handlePaymentToken  = ()=>{
+    const handlePaymentToken  = async(token)=>{
+try {
+  const amount = dataOfTheCart?.totalPrice
+const data = {
+  amount,token
+}
+const res = await postApiData(`products/pay`,data)
+console.log("res pay", res)
 
+if(res?.status === 200){
+  const res = await handleClearCart()
+  if (res?.success) {
+    toast.success('Payment received successfully')
+      navigate('/')
+}
+}
+} catch (error) {
+  toast.error(error.message)
+}
     }
   return (
     <div className='container mx-auto'>
@@ -210,11 +230,9 @@ col ={10}
 
         
         </ol>
-        <span>Total Prices : ${dataOfTheCart?.totalPrice}</span>
+        <div className='mb-4'>Total Prices : ${dataOfTheCart?.totalPrice}</div>
         
-<button className="flex ml-auto text-white  bg-red-500 border-0 py-1 text-sm  px-4 mx-2 focus:outline-none hover:bg-indigo-600 rounded" onClick={handlePayment} >Pay ${dataOfTheCart?.totalPrice}</button>
-
-<Stripe stripeKey={process.env.REACT_APP_STRIPE_PUBLIC_KEY} token={handlePaymentToken} />
+<Stripe stripeKey={process.env.REACT_APP_STRIPE_PUBLIC_KEY} token={handlePaymentToken}  />
 
 </div>}
 
